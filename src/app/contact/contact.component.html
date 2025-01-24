@@ -1,0 +1,71 @@
+<section id="contact">
+    <h2>Contact Us</h2>
+    <p>If you're interested in learning more about our services, get in touch with us:</p>
+    <form (ngSubmit)="onSubmit(contactForm)" #contactForm="ngForm">
+      <div>
+        <input
+          type="text"
+          name="name"
+          placeholder="Your Name"
+          [(ngModel)]="formData.name"
+          required
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          name="mobile"
+          placeholder="Your Mobile Number"
+          [(ngModel)]="formData.mobile"
+          required
+        />
+      </div>
+      <div>
+        <input
+          type="email"
+          name="email"
+          placeholder="Your Email"
+          [(ngModel)]="formData.email"
+          required
+        />
+      </div>
+      <div>
+        <select
+          name="interest"
+          [(ngModel)]="formData.interest"
+          required
+        >
+          <option value="" disabled>Select Area of Interest</option>
+          <option value="Residential Hydroponics">Residential Hydroponics</option>
+          <option value="Commercial Hydroponics">Commercial Hydroponics</option>
+          <option value="Urban Farming">Urban Farming</option>
+        </select>
+      </div>
+      <div>
+        <textarea
+          name="message"
+          placeholder="Your Message"
+          [(ngModel)]="formData.message"
+          required
+        ></textarea>
+      </div>
+      <button type="submit" [disabled]="!contactForm.valid">Submit</button>
+    </form>
+  
+    <!-- Success or Error message display -->
+    <div *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+  </section>
+  
+  
+  
+  
+  
+  
+  
+  
+  
