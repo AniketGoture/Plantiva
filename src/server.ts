@@ -136,36 +136,32 @@ app.listen(port, () => {
 import express from 'express';
 import nodemailer from 'nodemailer';
 import bodyParser from 'body-parser';
-import cors, { CorsOptions } from 'cors';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+// Initialize dotenv to load environment variables from a `.env` file
+dotenv.config();
 
 const app = express();
-const port = process.env['PORT'] || 3000; // Use dynamic port for Heroku
-
-// CORS configuration
-const corsOptions: CorsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests from localhost for local development and production URL
-    if (origin === 'http://localhost:4200' || origin === 'https://www.myplantiva.com') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+const port = 3000; // Keep this as is, or change if needed
 
 app.use(bodyParser.json());
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: 'http://localhost:4200', // Frontend URL for CORS
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
+// Create a transporter using environment variables
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env['MAIL_USER'], // Use environment variable for Gmail user
-    pass: process.env['MAIL_PASS'], // Use environment variable for Gmail password
-  },
+    user: "aniketgoture300@gmail.com", // Use environment variable for email
+    pass: "avorzfvitrxlpdaj", // Use environment variable for password
+  }
 });
 
+// Interface for contact form data
 interface ContactForm {
   name: string;
   mobile: string;
@@ -174,17 +170,18 @@ interface ContactForm {
   message: string;
 }
 
-app.post('/contact', (req: express.Request<{}, {}, ContactForm>, res: express.Response) => {
+app.post('/contact', async (req: express.Request<{}, {}, ContactForm>, res: express.Response): Promise<void> => {
   const { name, mobile, email, interest, message } = req.body;
 
   // Validate required fields
   if (!name || !mobile || !email || !interest || !message) {
-    return res.status(400).json({ message: 'All fields are required' });
+    res.status(400).json({ message: 'All fields are required' }); // No need to return a value
+    return; // End the function here after sending the response
   }
 
   const mailOptions = {
-    from: 'aniketgoture300@gmail.com', // Sender email
-    to: 'aniketgoture300@gmail.com',  // Recipient email
+    from: "aniketgoture300@gmail.com",
+    to: "aniketgoture300@gmail.com", // Receiver email (your own for testing)
     subject: 'New Contact Form Submission',
     text: `
       Name: ${name}
@@ -192,16 +189,18 @@ app.post('/contact', (req: express.Request<{}, {}, ContactForm>, res: express.Re
       Email: ${email}
       Area of Interest: ${interest}
       Message: ${message}
-    `,
+    `
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res.status(500).json({ message: 'Error sending email', error: error.message });
-    }
-    res.status(200).json({ message: 'Email sent successfully', info });
-  });
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Email sent successfully' }); // Send response on success
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Error sending email', error: (error as Error).message }); // Send response on error
+  }
 });
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
