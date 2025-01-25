@@ -62,7 +62,6 @@ export class ContactComponent {
 //   }
 //   successMessage: any;
 //   errorMessage: any;
-
 //   constructor(private http: HttpClient) { }
 
 //   // Define the onSubmit method with NgForm parameter
