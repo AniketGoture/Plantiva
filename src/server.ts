@@ -69,27 +69,101 @@ app.listen(port, () => {
  */
 
 
+// import express from 'express';
+// import nodemailer from 'nodemailer';
+// import bodyParser from 'body-parser';
+// import cors from 'cors';
+
+// const app = express();
+// const port = 3000; // Update to a different port (e.g., 3000)
+
+// app.use(bodyParser.json());
+// app.use(cors({
+//   origin: 'http://localhost:4200',
+//   methods: ['GET', 'POST'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+// }));
+
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'aniketgoture300@gmail.com',
+//     pass: 'avorzfvitrxlpdaj', // Use a more secure way to handle credentials
+//   }
+// });
+
+// interface ContactForm {
+//   name: string;
+//   mobile: string;
+//   email: string;
+//   interest: string;
+//   message: string;
+// }
+
+// app.post('/contact', (req: express.Request<{}, {}, ContactForm>, res: express.Response) => {
+//   const { name, mobile, email, interest, message } = req.body;
+
+//   // Validate required fields
+//   if (!name || !mobile || !email || !interest || !message) {
+//     return res.status(400).json({ message: 'All fields are required' });
+//   }
+
+//   const mailOptions = {
+//     from: 'aniketgoture300@gmail.com',
+//     to: 'aniketgoture300@gmail.com', // Send to your own email for testing
+//     subject: 'New Contact Form Submission',
+//     text: `
+//       Name: ${name}
+//       Mobile: ${mobile}
+//       Email: ${email}
+//       Area of Interest: ${interest}
+//       Message: ${message}
+//     `
+//   };
+
+//   transporter.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//       return res.status(500).json({ message: 'Error sending email', error: error.message });
+//     }
+//     res.status(200).json({ message: 'Email sent successfully', info });
+//   });
+// });
+
+// app.listen(port, () => {
+//   console.log(`Server running at http://localhost:${port}`);
+// });
+
 import express from 'express';
 import nodemailer from 'nodemailer';
 import bodyParser from 'body-parser';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 
 const app = express();
-const port = 3000; // Update to a different port (e.g., 3000)
+const port = process.env['PORT'] || 3000; // Use dynamic port for Heroku
 
-app.use(bodyParser.json());
-app.use(cors({
-  origin: 'http://localhost:4200',
+// CORS configuration
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests from localhost for local development and production URL
+    if (origin === 'http://localhost:4200' || origin === 'https://www.myplantiva.com') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+};
+
+app.use(bodyParser.json());
+app.use(cors(corsOptions));
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'aniketgoture300@gmail.com',
-    pass: 'avorzfvitrxlpdaj', // Use a more secure way to handle credentials
-  }
+    user: process.env['MAIL_USER'], // Use environment variable for Gmail user
+    pass: process.env['MAIL_PASS'], // Use environment variable for Gmail password
+  },
 });
 
 interface ContactForm {
@@ -109,8 +183,8 @@ app.post('/contact', (req: express.Request<{}, {}, ContactForm>, res: express.Re
   }
 
   const mailOptions = {
-    from: 'aniketgoture300@gmail.com',
-    to: 'aniketgoture300@gmail.com', // Send to your own email for testing
+    from: 'aniketgoture300@gmail.com', // Sender email
+    to: 'aniketgoture300@gmail.com',  // Recipient email
     subject: 'New Contact Form Submission',
     text: `
       Name: ${name}
@@ -118,7 +192,7 @@ app.post('/contact', (req: express.Request<{}, {}, ContactForm>, res: express.Re
       Email: ${email}
       Area of Interest: ${interest}
       Message: ${message}
-    `
+    `,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -132,6 +206,7 @@ app.post('/contact', (req: express.Request<{}, {}, ContactForm>, res: express.Re
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
 
 
 

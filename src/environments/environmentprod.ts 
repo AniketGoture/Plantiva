@@ -1,0 +1,4 @@
+export const environment = {
+  production: true,
+  apiUrl: 'https://myplantiva.com'  // Production backend URL (replace with your actual backend URL)
+};
