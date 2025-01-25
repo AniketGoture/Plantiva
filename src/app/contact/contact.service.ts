@@ -13,4 +13,3 @@ export class ContactService {
     return this.http.post(this.apiUrl, formData);
   }
 }
-// test
